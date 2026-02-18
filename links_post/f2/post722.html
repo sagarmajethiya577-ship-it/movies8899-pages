@@ -18,31 +18,57 @@
 </head>
 <body>
     <div id="display-area">Loading...</div>
+    
     <script>
         async function init() {
-            const id = new URLSearchParams(window.location.search).get("id");
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get("id");
+            const display = document.getElementById("display-area");
+
+            if (!id) {
+                display.innerHTML = "<h2>❌ No ID Found</h2>";
+                return;
+            }
+
+            // Path nikalne ka sahi tarika
+            let pathParts = window.location.pathname.split('/');
+            let fileName = pathParts.pop() || pathParts.pop(); // post530 nikalega
+            let postNum = fileName.replace('post', '').replace('.html', '');
+            
+            // Sabse important: Folder ke andar ki data file ka sahi naam
+            let jsonFile = "data" + postNum + ".json";
+
             try {
-                const res = await fetch("data722.json");
+                // Fetch direct usi folder se jahan post file hai
+                const res = await fetch(jsonFile);
+                if (!res.ok) throw new Error("File " + jsonFile + " not found");
+                
                 const data = await res.json();
                 const entry = data[id];
-                if (!entry) return;
+
+                if (!entry) {
+                    display.innerHTML = "<h2>❌ Data Missing for: " + id + "</h2>";
+                    return;
+                }
+
                 if (entry.type === "buttons") {
-                    document.getElementById("display-area").innerHTML = `
-                        <div class="top-note">
-                            <h1>👇 Always Use 👇</h1>
-                            <h1><a href="https://moviezone-22y.pages.dev/" target="_blank">Movies Zone 🍿</a></h1>
-                        </div>
+                    display.innerHTML = `
                         <div class="box">
+                            <h1 style="color:#ed0b0b;">🍿 Movies Zone 🍿</h1>
                             <a href="${entry.direct}" class="btn direct">⚡ Direct Download</a>
-                            <a href="${entry.vcloud}" target="_blank" class="btn vcloud">⚡ V-Cloud [Resumable]</a>
+                            <a href="${entry.vcloud}" target="_blank" class="btn vcloud">⚡ V-Cloud</a>
                             <a href="${entry.pixel}" target="_blank" class="btn pixel">⚡ Pixeldrain</a>
                         </div>`;
                 } else {
-                    document.getElementById("display-area").innerHTML = `<div id="main-content">${entry.content}</div>`;
+                    display.innerHTML = `<div id="main-content">${entry.content}</div>`;
                 }
-            } catch(e) { console.log(e); }
+            } catch (e) {
+                console.error(e);
+                display.innerHTML = "<h2>❌ Error: " + e.message + "</h2>";
+            }
         }
         init();
     </script>
+
 </body>
 </html>
