@@ -32,41 +32,33 @@
 
         const display = document.getElementById("display-area");
 
-        // --- STEP 1: Pehchaano ki asli ID kya hai ---
-        let lookupId = id;
-        if (id.startsWith("sd04-")) {
-            lookupId = id.substring(5); // 'sd04-' hatao
-        } else if (id.startsWith("sd04")) {
-            lookupId = id.substring(4); // 'sd04' hatao
-        }
+        // 1. Check karo link buttons wali hai ya content wali
+        const isButtonLink = id.startsWith("sd04-");
+        
+        // 2. Asli ID nikaalo (taki humein pata chale file 0 mein hai ya a mein)
+        let cleanId = isButtonLink ? id.replace("sd04-", "") : id;
+        
+        // 3. Pehla character nikaalo (e.g., '0')
+        let firstChar = cleanId.charAt(0);
+        if (!/[a-zA-Z0-9]/.test(firstChar)) firstChar = "special";
 
-        // --- STEP 2: Pehla akshar nikaalo ---
-        let firstChar = lookupId.charAt(0);
-        // Agar pehla char alphanumeric nahi hai (jaise '-'), toh use 'special' maano
-        if (!/[a-zA-Z0-9]/.test(firstChar)) {
-            firstChar = "special";
-        }
-
-        // --- STEP 3: Sahi Path set karo ---
-        // Dhyaan de: agar aapki files 'json_parts' folder ke andar hain toh ye path sahi hai
-        const DATA_URL = `https://movies8899.pages.dev/json_parts/data_${firstChar}.json`;
+        // 4. Sahi file fetch karo
+        const DATA_URL = `/json_parts/data_${firstChar}.json`;
 
         try {
             const res = await fetch(DATA_URL);
+            if (!res.ok) throw new Error("File missing");
             
-            if (!res.ok) {
-                throw new Error(`data_${firstChar}.json not found`);
-            }
-
             const data = await res.json();
-            const entry = data[id]; // Yahan asli 'sd04-...' wali ID hi search hogi
+            const entry = data[id]; // Yahan pura ID search hoga (sd04 wala ya bina sd04 wala)
 
             if (!entry) {
-                display.innerHTML = `<h2>❌ ID [${id}] not found in data_${firstChar}.json</h2>`;
+                display.innerHTML = `<h2>❌ Data not found in data_${firstChar}.json</h2>`;
                 return;
             }
 
-            if (entry.type === "buttons") {
+            // 5. Render logic
+            if (isButtonLink || entry.type === "buttons") {
                 display.style.textAlign = "center";
                 display.innerHTML = `
                     <div class="top-note">
@@ -82,7 +74,7 @@
                 display.innerHTML = entry.content;
             }
         } catch (e) {
-            display.innerHTML = `<h2>❌ Error: ${e.message}</h2><p>Check if the file exists at: <br>${DATA_URL}</p>`;
+            display.innerHTML = `<h2>❌ Error loading data_${firstChar}.json</h2>`;
         }
     }
     init();
