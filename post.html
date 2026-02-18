@@ -30,34 +30,45 @@
         const id = urlParams.get("id");
         if (!id) return;
 
-        // --- SMART DETECTOR ---
+        const display = document.getElementById("display-area");
+
+        // --- STEP 1: Pehchaano ki asli ID kya hai ---
         let lookupId = id;
-        // Agar id 'sd04-abc' hai, toh humein 'abc' ka pehla char chahiye
         if (id.startsWith("sd04-")) {
-            lookupId = id.substring(5); 
+            lookupId = id.substring(5); // 'sd04-' hatao
         } else if (id.startsWith("sd04")) {
-            lookupId = id.substring(4);
+            lookupId = id.substring(4); // 'sd04' hatao
         }
 
-        // Ab asli pehla akshar nikalo (e.g., '0' instead of 's')
+        // --- STEP 2: Pehla akshar nikaalo ---
         let firstChar = lookupId.charAt(0);
-        if (!/[a-zA-Z0-9]/.test(firstChar)) firstChar = "special";
+        // Agar pehla char alphanumeric nahi hai (jaise '-'), toh use 'special' maano
+        if (!/[a-zA-Z0-9]/.test(firstChar)) {
+            firstChar = "special";
+        }
 
+        // --- STEP 3: Sahi Path set karo ---
+        // Dhyaan de: agar aapki files 'json_parts' folder ke andar hain toh ye path sahi hai
         const DATA_URL = `https://movies8899.pages.dev/json_parts/data_${firstChar}.json`;
 
         try {
             const res = await fetch(DATA_URL);
+            
+            if (!res.ok) {
+                throw new Error(`data_${firstChar}.json not found`);
+            }
+
             const data = await res.json();
-            const entry = data[id]; // Yahan pura 'sd04-...' wala ID hi search hoga
+            const entry = data[id]; // Yahan asli 'sd04-...' wali ID hi search hogi
 
             if (!entry) {
-                document.getElementById("display-area").innerHTML = "<h2>❌ Data Not Found in data_" + firstChar + ".json</h2>";
+                display.innerHTML = `<h2>❌ ID [${id}] not found in data_${firstChar}.json</h2>`;
                 return;
             }
 
             if (entry.type === "buttons") {
-                document.getElementById("display-area").style.textAlign = "center";
-                document.getElementById("display-area").innerHTML = `
+                display.style.textAlign = "center";
+                display.innerHTML = `
                     <div class="top-note">
                         <h1>👇 Always Use 👇</h1>
                         <h1><a href="https://moviezone-22y.pages.dev/" target="_blank">Movies Zone 🍿</a></h1>
@@ -68,10 +79,10 @@
                         <a href="${entry.pixel}" target="_blank" class="btn pixel">⚡ Pixeldrain</a>
                     </div>`;
             } else {
-                document.getElementById("display-area").innerHTML = entry.content;
+                display.innerHTML = entry.content;
             }
         } catch (e) {
-            document.getElementById("display-area").innerHTML = "<h2>❌ File data_" + firstChar + ".json not found or Network Error</h2>";
+            display.innerHTML = `<h2>❌ Error: ${e.message}</h2><p>Check if the file exists at: <br>${DATA_URL}</p>`;
         }
     }
     init();
