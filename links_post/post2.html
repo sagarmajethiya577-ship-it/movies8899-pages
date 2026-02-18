@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movies Zone</title>
+    <style>
+        body { background: #000; color: #fff; font-family: Arial; text-align: center; padding: 20px; }
+        .btn { display: block; width: 250px; padding: 15px; margin: 15px auto; font-weight: bold; border-radius: 8px; text-decoration: none; color: #000; }
+        .direct { background: #0ebac3; } .vcloud { background: #ed0b0b; color: #fff; } .pixel { background: #045872; color: #fff; }
+        #main-content { text-align: left; max-width: 800px; margin: auto; }
+    </style>
+</head>
+<body>
+    <div id="display-area">Loading...</div>
+    <script>
+        async function init() {
+            const id = new URLSearchParams(window.location.search).get("id");
+            const res = await fetch("data2.json"); // Same folder mein hai isliye direct name
+            const data = await res.json();
+            const entry = data[id];
+            if (!entry) { document.getElementById("display-area").innerHTML = "<h2>Not Found</h2>"; return; }
+            
+            if (entry.type === "buttons") {
+                document.getElementById("display-area").innerHTML = `
+                    <h1><a href="https://moviezone-22y.pages.dev/" style="color:red;text-decoration:none;">Movies Zone 🍿</a></h1>
+                    <a href="${entry.direct}" class="btn direct">⚡ Direct Download</a>
+                    <a href="${entry.vcloud}" target="_blank" class="btn vcloud">⚡ V-Cloud</a>
+                    <a href="${entry.pixel}" target="_blank" class="btn pixel">⚡ Pixeldrain</a>`;
+            } else {
+                document.getElementById("display-area").innerHTML = `<div id="main-content">${entry.content}</div>`;
+            }
+        }
+        init();
+    </script>
+</body>
+</html>
