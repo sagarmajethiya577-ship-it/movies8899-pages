@@ -26,28 +26,39 @@
 
 <script>
     async function init() {
-        const id = new URLSearchParams(window.location.search).get("id");
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get("id");
+        const display = document.getElementById("display-area");
+
         if (!id) return;
 
         try {
-            // 1. Pehle Index Map mangao ye batayega ki ID kis file mein hai
+            // Index map load karein
             const indexRes = await fetch("https://movies8899.pages.dev/json_parts/index_map.json");
             const indexMap = await indexRes.json();
+            
+            // ID ko map mein dhundein
             const fileName = indexMap[id];
 
             if (!fileName) {
-                document.getElementById("display-area").innerHTML = "<h2>Movie Not Found</h2>";
+                display.innerHTML = "<h2>❌ ID Not Found in Index!</h2>";
                 return;
             }
 
-            // 2. Ab asli data file mangao
+            // Sahi JSON file load karein
             const res = await fetch(`https://movies8899.pages.dev/json_parts/${fileName}`);
             const data = await res.json();
             const entry = data[id];
 
+            if (!entry) {
+                display.innerHTML = "<h2>❌ Entry Not Found in Data!</h2>";
+                return;
+            }
+
             if (entry.type === "buttons") {
-                document.getElementById("display-area").innerHTML = `
-                    <div class="top-note" style="text-align:center;">
+                display.style.textAlign = "center";
+                display.innerHTML = `
+                    <div class="top-note">
                         <h1>👇 Always Use 👇</h1>
                         <h1><a href="https://moviezone-22y.pages.dev/" target="_blank">Movies Zone 🍿</a></h1>
                     </div>
@@ -57,10 +68,11 @@
                         <a href="${entry.pixel}" target="_blank" class="btn pixel">⚡ Pixeldrain</a>
                     </div>`;
             } else {
-                document.getElementById("display-area").innerHTML = entry.content;
+                display.innerHTML = entry.content;
             }
         } catch (e) {
-            document.getElementById("display-area").innerHTML = "<h2>Network Error!</h2>";
+            console.error(e);
+            display.innerHTML = "<h2>❌ Network Error! Check Console</h2>";
         }
     }
     init();
