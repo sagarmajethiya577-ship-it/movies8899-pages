@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Download</title>
+</head>
+<body style="text-align:center; font-family:sans-serif; margin-top:50px;">
+
+<h2>Download Options</h2>
+
+<div id="buttons"></div>
+
+<script>
+fetch("data.json")
+.then(res => res.json())
+.then(data => {
+
+    const id = new URLSearchParams(location.search).get("id");
+
+    if (!data[id] || data[id].type !== "buttons") {
+        document.body.innerHTML = "<h2>Buttons Not Found</h2>";
+        return;
+    }
+
+    document.getElementById("buttons").innerHTML = `
+        <a href="${data[id].direct}">
+            <button style="padding:10px 20px;">Direct Download</button>
+        </a>
+        <br><br>
+        <a href="${data[id].vcloud}" target="_blank">
+            <button style="padding:10px 20px;">⚡ VCloud</button>
+        </a>
+        <br><br>
+        <a href="${data[id].pixel}" target="_blank">
+            <button style="padding:10px 20px;">⚡ Pixeldrain</button>
+        </a>
+    `;
+
+});
+</script>
+
+</body>
+</html>
