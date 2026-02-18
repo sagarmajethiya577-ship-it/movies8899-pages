@@ -6,111 +6,64 @@
     <title>Movies Zone</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        body { background: #000; color: #fff; font-family: 'Segoe UI', Arial, sans-serif; text-align: center; margin: 0; padding: 20px; }
-        
-        /* Container styling */
-        #display-area { max-width: 800px; margin: 20px auto; text-align: left; min-height: 200px; }
-
-        /* Button Page Styling */
-        .top-note h1 { font-size: 24px; margin: 10px 0; color: #fff; }
-        .top-note a { color: #ff3b3b; text-decoration: none; font-weight: bold; border-bottom: 2px solid transparent; transition: 0.3s; }
-        .top-note a:hover { border-bottom: 2px solid #ff3b3b; }
-
-        .box { margin-top: 40px; text-align: center; }
-        
-        .btn { 
-            display: inline-block; width: 85%; max-width: 320px; padding: 14px; margin: 12px auto; 
-            font-size: 16px; font-weight: bold; border: none; border-radius: 8px; 
-            cursor: pointer; text-decoration: none; color: #000; 
-            transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-        
-        .btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.4); opacity: 0.9; }
-
+        body { background: #000; color: #fff; font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 20px; }
+        #display-area { max-width: 800px; margin: auto; text-align: left; }
+        .top-note h1 { font-size: 24px; color: #fff; }
+        .top-note a { color: #ff3b3b; text-decoration: none; font-weight: bold; }
+        .box { margin-top: 30px; text-align: center; }
+        .btn { display: block; width: 250px; padding: 14px; margin: 15px auto; font-size: 16px; font-weight: bold; border-radius: 8px; text-decoration: none; color: #000; }
         .direct { background: linear-gradient(135deg,#0ebac3,#09d261); }
         .vcloud { background: linear-gradient(135deg,#ed0b0b,#f2d152); }
         .pixel { background: linear-gradient(135deg,rgba(4,88,114,.82),rgba(255,99,128,.73)); }
-
-        /* Loading & Error States */
-        .loading-box { text-align: center; margin-top: 100px; color: #aaa; }
-        .error-msg { color: #ff4d4d; text-align: center; margin-top: 50px; font-size: 20px; }
-        
-        /* Content View Styling */
-        .main-content { background: #111; padding: 15px; border-radius: 10px; line-height: 1.6; }
+        .loading { font-size: 18px; color: #666; margin-top: 50px; }
     </style>
 </head>
 <body>
 
 <div id="display-area">
-    <div class="loading-box">
-        <i class="fas fa-spinner fa-spin fa-3x"></i>
-        <p>Fetching Movie Data...</p>
-    </div>
+    <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
 </div>
 
 <script>
     async function init() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const id = urlParams.get("id");
-        const display = document.getElementById("display-area");
-
-        if (!id) {
-            display.innerHTML = "<div class='error-msg'><h2><i class='fas fa-exclamation-triangle'></i> No ID Provided!</h2></div>";
-            return;
-        }
+        const id = new URLSearchParams(window.location.search).get("id");
+        if (!id) return;
 
         try {
-            // 1. Pehle index_map.json load karein (Ye batayega data konsi file mein hai)
+            // 1. Pehle Index Map mangao ye batayega ki ID kis file mein hai
             const indexRes = await fetch("https://movies8899.pages.dev/json_parts/index_map.json");
-            if (!indexRes.ok) throw new Error("Index file missing");
-            
             const indexMap = await indexRes.json();
-            const chunkFileName = indexMap[id];
+            const fileName = indexMap[id];
 
-            if (!chunkFileName) {
-                display.innerHTML = "<div class='error-msg'><h2><i class='fas fa-search'></i> Post Not Found!</h2></div>";
+            if (!fileName) {
+                document.getElementById("display-area").innerHTML = "<h2>Movie Not Found</h2>";
                 return;
             }
 
-            // 2. Ab specific chunk file load karein (Jaise: data_5.json)
-            const dataRes = await fetch(`https://movies8899.pages.dev/json_parts/${chunkFileName}`);
-            const data = await dataRes.json();
+            // 2. Ab asli data file mangao
+            const res = await fetch(`https://movies8899.pages.dev/json_parts/${fileName}`);
+            const data = await res.json();
             const entry = data[id];
 
-            if (!entry) {
-                display.innerHTML = "<div class='error-msg'><h2><i class='fas fa-file-excel'></i> Data missing in chunk!</h2></div>";
-                return;
-            }
-
-            // 3. Render Views
             if (entry.type === "buttons") {
-                // BUTTON VIEW
-                display.style.textAlign = "center";
-                display.innerHTML = `
-                    <div class="top-note">
+                document.getElementById("display-area").innerHTML = `
+                    <div class="top-note" style="text-align:center;">
                         <h1>👇 Always Use 👇</h1>
                         <h1><a href="https://moviezone-22y.pages.dev/" target="_blank">Movies Zone 🍿</a></h1>
                     </div>
                     <div class="box">
-                        <a href="${entry.direct}" class="btn direct"><i class="fas fa-bolt"></i> Direct Download</a>
-                        <a href="${entry.vcloud}" target="_blank" class="btn vcloud"><i class="fas fa-cloud-arrow-down"></i> V-Cloud [Resumable]</a>
-                        <a href="${entry.pixel}" target="_blank" class="btn pixel"><i class="fas fa-download"></i> Pixeldrain</a>
-                    </div>
-                `;
+                        <a href="${entry.direct}" class="btn direct">⚡ Direct Download</a>
+                        <a href="${entry.vcloud}" target="_blank" class="btn vcloud">⚡ V-Cloud [Resumable]</a>
+                        <a href="${entry.pixel}" target="_blank" class="btn pixel">⚡ Pixeldrain</a>
+                    </div>`;
             } else {
-                // ORIGINAL CONTENT VIEW
-                display.innerHTML = `<div class="main-content">${entry.content}</div>`;
+                document.getElementById("display-area").innerHTML = entry.content;
             }
-
-        } catch (error) {
-            console.error("Critical Error:", error);
-            display.innerHTML = `<div class='error-msg'><h2><i class='fas fa-wifi'></i> Network Error or File Missing!</h2><p>${error.message}</p></div>`;
+        } catch (e) {
+            document.getElementById("display-area").innerHTML = "<h2>Network Error!</h2>";
         }
     }
-
-    // Initialize the page
     init();
 </script>
-
 </body>
 </html>
