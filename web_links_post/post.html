@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading...</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { margin:0; padding:0; background:#000; color:#fff; font-family: Arial, sans-serif; text-align:center; }
+        .post-wrap { max-width:900px; margin:auto; padding:20px; }
+        .top-note { text-align:center; margin-bottom:10px; padding-top: 20px; }
+        .top-note h1 { margin:5px 0; font-size:24px; font-weight: bold; }
+        .top-note a { color:#ff3b3b; text-decoration:none; font-weight:bold; }
+        .divdr { height: 5px; width: 80%; margin: 20px auto; background: #797d84; border-radius: 50%; }
+        .btn { background:linear-gradient(135deg,#ed0b0b,#f2d152);color:white;border:none;padding:10px 16px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:14px;text-decoration:none;display:inline-block; }
+    </style>
+</head>
+<body>
+    <div class="post-wrap">
+        <div class="top-note">
+            <h1><span class="emoji">👇</span> Always Use <span class="emoji">👇</span></h1>
+            <h1><a href="https://moviezone-22y.pages.dev/">Movies Zone 🍿</a></h1>
+        </div>
+        <div id="content-area">
+            <p>Loading Content...</p>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const postId = urlParams.get('id');
+
+        fetch('data.json')
+            .then(res => res.json())
+            .then(data => {
+                const post = data[postId];
+                if (post) {
+                    document.title = post.title;
+                    let html = '';
+                    post.episodes.forEach(ep => {
+                        html += `
+                            <div class="divdr"></div>
+                            <h4 style="margin-top:20px;">⚡ ${ep.episode} ⚡</h4>
+                            <p><a href="${ep.link}" target="_blank" class="btn">
+                                <i class="fa fa-download"></i> V-Cloud [Resumable]
+                            </a></p>`;
+                    });
+                    document.getElementById('content-area').innerHTML = html;
+                } else {
+                    document.getElementById('content-area').innerHTML = '<h2>Post Not Found!</h2>';
+                }
+            })
+            .catch(err => {
+                document.getElementById('content-area').innerHTML = '<h2>Error loading data.</h2>';
+                console.error(err);
+            });
+    </script>
+</body>
+</html>
