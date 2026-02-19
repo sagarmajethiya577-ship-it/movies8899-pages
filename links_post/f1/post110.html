@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movies Zone</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -17,27 +16,21 @@
     </style>
 </head>
 <body>
-    <div id="display-area">Loading...</div>
+    <div id="display-area">🚀 Loading...</div>
     <script>
         async function init() {
             const id = new URLSearchParams(window.location.search).get("id");
-            // URL path se post number nikalna
-            let path = window.location.pathname;
-            let fileName = path.split('/').pop().replace('.html', '');
-            let postNum = fileName.replace('post', '');
-            let jsonFile = "data" + postNum + ".json";
-
+            if (!id) return;
             try {
-                const res = await fetch(jsonFile);
+                const res = await fetch("data110.json");
                 const data = await res.json();
                 const entry = data[id];
                 if (!entry) return;
-                
                 if (entry.type === "buttons") {
                     document.getElementById("display-area").innerHTML = `
                         <div class="top-note">
                             <h1>👇 Always Use 👇</h1>
-                            <h1><a href="https://moviezone-22y.pages.dev/" target="_blank">Movies Zone 🍿</a></h1>
+                            <h1><a href="https://moviezone-22y.pages.dev/">Movies Zone 🍿</a></h1>
                         </div>
                         <div class="box">
                             <a href="${entry.direct}" class="btn direct">⚡ Direct Download</a>
